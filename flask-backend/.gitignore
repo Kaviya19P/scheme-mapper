@@ -1,0 +1,4 @@
+.venv
+
+scheme_map/__pycache__
+scheme_map/firebase_adminsdk.json

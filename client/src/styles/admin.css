@@ -1,0 +1,87 @@
+.admin-container {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #f4f8fb;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.admin-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+}
+
+.admin-container h3 {
+    margin-top: 2rem;
+    color: #34495e;
+}
+
+.admin-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin-container input,
+.admin-container textarea,
+.admin-container select {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    transition: border-color 0.3s ease;
+}
+
+.admin-container input:focus,
+.admin-container textarea:focus,
+.admin-container select:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+.eligibility-rule {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.eligibility-rule input,
+.eligibility-rule select {
+    flex: 1;
+}
+
+.eligibility-rule button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.eligibility-rule button:hover {
+    background-color: #c0392b;
+}
+
+.admin-container .add-rule-btn,
+.admin-container button[type="submit"] {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.admin-container .add-rule-btn:hover,
+.admin-container button[type="submit"]:hover {
+    background-color: #357ab8;
+    transform: scale(1.03);
+}
