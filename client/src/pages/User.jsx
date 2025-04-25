@@ -1,7 +1,7 @@
 //User.jsx
 
 
-import React, { useState } from 'react';
+/*import React, { useState } from 'react';
 import '../styles/user.css'
 
 function User() {
@@ -70,3 +70,55 @@ function User() {
 }
 
 export default User;
+
+*/
+
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function User({ username }) {
+  const [files, setFiles] = useState([]);
+  const [message, setMessage] = useState('');
+
+  const handleFileChange = (e) => {
+    setFiles(e.target.files);
+  };
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+
+    if (files.length < 3) {
+      setMessage('Please upload at least 3 documents.');
+      return;
+    }
+
+    const formData = new FormData();
+    for (let file of files) {
+      formData.append('documents', file);
+    }
+    formData.append('username', username); // send username for folder name
+
+    try {
+      const res = await axios.post('/user/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setMessage(res.data.message);
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Upload failed');
+    }
+  };
+
+  return (
+    <div>
+      <h2>Upload Your Documents</h2>
+      <form onSubmit={handleUpload}>
+        <input type="file" multiple onChange={handleFileChange} />
+        <button type="submit">Upload</button>
+      </form>
+      {message && <p>{message}</p>}
+    </div>
+  );
+}
+
+export default User;
+

@@ -14,6 +14,9 @@ function Login() {
     try {
       const res = await axios.post("/login", form);
       //alert(res.data.message);
+      if (res.status === 200) {
+      navigate('/user');
+    }
     } catch (err) {
       alert(err.response.data.message);
     }
@@ -24,7 +27,7 @@ function Login() {
     <form onSubmit={handleSubmit}>
       <input name="email" placeholder="Email" onChange={handleChange} required />
       <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
-      <button type="submit" onClick={() => navigate('/user')}>Login</button>
+      <button type="submit">Login</button>
       <p>Don't have an account: <Link to="/signup">Register</Link></p>
     </form>
     </div>

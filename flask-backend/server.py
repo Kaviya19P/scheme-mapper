@@ -5,6 +5,7 @@ from flask_cors import CORS
 from pymongo import MongoClient
 import bcrypt
 from scheme_map.mapper import load_schemes, find_eligible_schemes
+from file_storage import views
 
 app = Flask(__name__)
 CORS(app)
