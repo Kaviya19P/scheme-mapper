@@ -23,7 +23,7 @@ function Signup() {
 
       if (response.status === 201) {
         // Signup successful
-        navigate('/user');
+        navigate('/user/upload');
       } else {
         const data = await response.json();
         alert(data.message); // Show backend error

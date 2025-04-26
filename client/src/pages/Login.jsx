@@ -15,7 +15,7 @@ function Login() {
       const res = await axios.post("/login", form);
       //alert(res.data.message);
       if (res.status === 200) {
-      navigate('/user');
+      navigate('/user/upload');
     }
     } catch (err) {
       alert(err.response.data.message);

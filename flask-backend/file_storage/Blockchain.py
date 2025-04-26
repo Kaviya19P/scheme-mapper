@@ -1,6 +1,6 @@
 #Import libraries
 import random
-from .Block import Block
+from Block import Block
 
 #immutable list of blocks
 class Blockchain:

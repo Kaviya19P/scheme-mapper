@@ -76,49 +76,101 @@ export default User;
 import React, { useState } from 'react';
 import axios from 'axios';
 
-function User({ username }) {
-  const [files, setFiles] = useState([]);
+function User() {
+  const [file, setFile] = useState(null);
+  const [userFiles, setUserFiles] = useState([]);
   const [message, setMessage] = useState('');
 
   const handleFileChange = (e) => {
-    setFiles(e.target.files);
+    setFile(e.target.files[0]);
   };
 
-  const handleUpload = async (e) => {
-    e.preventDefault();
-
-    if (files.length < 3) {
-      setMessage('Please upload at least 3 documents.');
+  const handleUpload = async () => {
+    if (!file) {
+      setMessage('Please select a file first');
       return;
     }
 
     const formData = new FormData();
-    for (let file of files) {
-      formData.append('documents', file);
-    }
-    formData.append('username', username); // send username for folder name
+    formData.append('file', file);
 
     try {
-      const res = await axios.post('/user/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      const response = await axios.post('/user/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true
       });
-      setMessage(res.data.message);
-    } catch (err) {
-      setMessage(err.response?.data?.message || 'Upload failed');
+      setMessage(response.data.message);
+      fetchUserFiles();
+    } catch (error) {
+      setMessage(error.response?.data?.message || 'Error uploading file');
     }
   };
 
+  const fetchUserFiles = async () => {
+    try {
+      const response = await axios.get('/user/files', {
+        withCredentials: true
+      });
+      setUserFiles(response.data.files);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+    }
+  };
+
+  // Call fetchUserFiles on component mount
+  React.useEffect(() => {
+    fetchUserFiles();
+  }, []);
+
   return (
     <div>
-      <h2>Upload Your Documents</h2>
-      <form onSubmit={handleUpload}>
-        <input type="file" multiple onChange={handleFileChange} />
-        <button type="submit">Upload</button>
-      </form>
-      {message && <p>{message}</p>}
+      <h2>File Storage</h2>
+      
+      <div>
+        <h3>Upload File</h3>
+        <input type="file" onChange={handleFileChange} />
+        <button onClick={handleUpload}>Upload</button>
+        {message && <p>{message}</p>}
+      </div>
+
+      <div>
+        <h3>Your Files</h3>
+        {userFiles.length === 0 ? (
+          <p>No files found</p>
+        ) : (
+          <ul>
+            {userFiles.map((file, index) => (
+              <li key={index}>
+                {file.filename} - {Math.round(file.size / 1024)} KB
+                <button onClick={() => downloadFile(file.filename)}>Download</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
+
+  async function downloadFile(filename) {
+    try {
+      const response = await axios.get(`/user/download/${filename}`, {
+        responseType: 'blob',
+        withCredentials: true
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading file:', error);
+    }
+  }
 }
 
 export default User;
-
