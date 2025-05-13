@@ -7,7 +7,8 @@ import User from './pages/User'
 import Admin from './pages/Admin'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
-
+import Chatbot from './pages/Chatbot'
+import ProtectedRoute from './ProtectedRoute'
 
 function App() {
 
@@ -18,8 +19,18 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<Signup />} />
-        <Route path='/user/upload' element={<User/>}/>
-        <Route path='/admin' element={<Admin/>}></Route>
+        <Route path='/admin' element={<Admin />} />
+        <Route path='/user' element={
+          <ProtectedRoute>
+            <User/>
+          </ProtectedRoute>
+          }/>
+        
+        <Route path='/chat' element={
+          <ProtectedRoute>
+            <Chatbot/>
+          </ProtectedRoute>
+          }></Route>
       </Routes>
     </Router>
   )

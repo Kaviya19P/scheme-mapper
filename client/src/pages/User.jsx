@@ -1,7 +1,8 @@
 //User.jsx
 
 
-/*import React, { useState } from 'react';
+import React, { useState } from 'react';
+import {Link} from 'react-router-dom'
 import '../styles/user.css'
 
 function User() {
@@ -41,6 +42,13 @@ function User() {
 
   return (
     <div className='user-container'>
+       <div className='user-header'>
+        <h2>Check Scheme Eligibility</h2>
+        <nav>
+          <Link to="/user" className='active'>User Dashboard</Link>
+          <Link to="/chat">Chat with Assistant</Link>
+        </nav>
+      </div>
       <h2>Check Scheme Eligibility</h2>
       <form onSubmit={handleSubmit}>
         <input name="age" value={formData.age} onChange={handleChange} placeholder="Age" />
@@ -71,8 +79,8 @@ function User() {
 
 export default User;
 
-*/
 
+/*
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -174,3 +182,4 @@ function User() {
 }
 
 export default User;
+*/

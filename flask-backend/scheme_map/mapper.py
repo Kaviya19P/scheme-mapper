@@ -1,7 +1,6 @@
 import json
 import operator
-import firebase_admin
-from firebase_admin import credentials, firestore
+from pymongo import MongoClient
 
 # Map string operators to actual Python operator functions
 ops = {
@@ -13,18 +12,18 @@ ops = {
     "<": operator.lt
 }
 
-# Initialize Firebase only once
-if not firebase_admin._apps:
-    cred = credentials.Certificate("scheme_map/firebase_adminsdk.json")
-    firebase_admin.initialize_app(cred)
-
-db = firestore.client()
+client = MongoClient("mongodb://localhost:27017/")  # update with your actual connection string
+db = client["scheme_data"]  # replace with your database name
+scheme_collection = db["schemes"]   # replace with your collection name
 
 # Function to load schemes from Firestore
 def load_schemes():
+    """
     schemes_ref = db.collection("scheme")
     docs = schemes_ref.stream()
     return [doc.to_dict() for doc in docs]
+    """
+    return list(scheme_collection.find({}, {"_id": 0}))  # Exclude _id if not needed
 
 # Evaluate each rule
 def evaluate_rule(user_data, rule):
@@ -57,7 +56,8 @@ def evaluate_rule(user_data, rule):
 def find_eligible_schemes(user_data, schemes):
     eligible = []
     for scheme in schemes:
-        if all(evaluate_rule(user_data, rule) for rule in scheme["eligibility"]):
+        rules = scheme.get("eligibility", [])
+        if all(evaluate_rule(user_data, rule) for rule in rules):
             eligible.append({
                 "name": scheme.get("name")
             })

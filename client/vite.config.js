@@ -12,6 +12,7 @@ export default defineConfig({
       '/user': 'http://localhost:5000',
       '/signup': 'http://localhost:5000',
       '/login': 'http://localhost:5000',
+      '/chat': 'http://localhost:5000',
         
     }
   }

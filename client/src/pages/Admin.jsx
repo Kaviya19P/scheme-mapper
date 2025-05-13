@@ -1,41 +1,11 @@
 //admin.jsx
 
 import React, {useState} from 'react'
+import axios from 'axios'
 import '../styles/admin.css'
 
-import { initializeApp} from 'firebase/app'
-import {getFirestore, collection, addDoc} from 'firebase/firestore'
-
-// Your web app's Firebase configuration
-
-  const firebaseConfig = {
-
-  apiKey: "AIzaSyB8U-2Tkier39nOsAfnakdIvcYwTWmtVyA",
-
-  authDomain: "schemes-4cd8a.firebaseapp.com",
-
-  databaseURL: "https://schemes-4cd8a-default-rtdb.asia-southeast1.firebasedatabase.app",
-
-  projectId: "schemes-4cd8a",
-
-  storageBucket: "schemes-4cd8a.firebasestorage.app",
-
-  messagingSenderId: "329089580568",
-
-  appId: "1:329089580568:web:dbc9fcb25c5e2d20be4d6d"
-
-};
-
-
-// Initialize Firebase
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
 function Admin() {
-  const [formData, setFormData] = useState({ name: '',
-  description: '',
-  });
+  const [formData, setFormData] = useState({ name: '', description: ''  });
 
   const [eligibility, setEligibility] = useState([
   { attribute: '', operator: '', value: '' }
@@ -75,7 +45,7 @@ const removeEligibility = (index) => {
       value: isNaN(rule.value) ? rule.value.toLowerCase() : Number(rule.value)
     }));
 
-    await addDoc(collection(db, 'scheme'), {
+    await axios.post('/admin', {
       name: formData.name,
       description: formData.description,
       eligibility: parsedEligibility
