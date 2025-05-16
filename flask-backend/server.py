@@ -21,8 +21,21 @@ app.register_blueprint(chatbot_bp)
 client = MongoClient('mongodb://localhost:27017/')
 db = client['user_auth']
 users_collection = db['users']
+admin_collection = db['admin']
 db2 = client['scheme_data']
 scheme_collection = db2['schemes']
+
+admin_code = "123"
+plain_password = "123"
+
+# Hash the password using bcrypt
+hashed_password = bcrypt.hashpw(plain_password.encode("utf-8"), bcrypt.gensalt())
+
+# Insert into MongoDB
+admin_collection.insert_one({
+    "code": admin_code,
+    "password": hashed_password  # Note: this is stored as Binary (bytes)
+})
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -54,6 +67,20 @@ def login():
             'email': user['email']
         }
         return jsonify({'message': 'Login successful', 'user': {'name': user['name'], 'email': user['email']}})
+    return jsonify({'message': 'Invalid email or password'}), 401
+
+@app.route('/admin-login', methods=['POST'])
+def adminLogin():
+    data = request.json
+    code = data.get('code')
+    password = data.get('password')
+
+    admin = admin_collection.find_one({'code': code})
+    if admin and bcrypt.checkpw(password.encode('utf-8'), admin['password']):
+        session['admin'] = {
+            'code': admin['code']
+        }
+        return jsonify({'message': 'Login successful', 'admin': {'code': admin['code']}})
     return jsonify({'message': 'Invalid email or password'}), 401
 
 @app.route("/admin", methods=['POST'])

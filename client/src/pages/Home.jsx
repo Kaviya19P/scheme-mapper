@@ -10,7 +10,7 @@ function Home() {
     <div className='home-container'>
         <h1>Nam Sarathi: Mapping Government Schemes to beneficiaries</h1>
         <button onClick={() => navigate('/login')}>User</button>
-        <button onClick={() => navigate('/admin')}>Admin</button>
+        <button onClick={() => navigate('/admin-login')}>Admin</button>
     </div>
   )
 }

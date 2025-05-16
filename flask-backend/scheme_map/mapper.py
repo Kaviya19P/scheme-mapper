@@ -18,15 +18,10 @@ scheme_collection = db["schemes"]   # replace with your collection name
 
 # Function to load schemes from Firestore
 def load_schemes():
-    """
-    schemes_ref = db.collection("scheme")
-    docs = schemes_ref.stream()
-    return [doc.to_dict() for doc in docs]
-    """
     return list(scheme_collection.find({}, {"_id": 0}))  # Exclude _id if not needed
 
 # Evaluate each rule
-def evaluate_rule(user_data, rule):
+"""def evaluate_rule(user_data, rule):
     attr = rule["attribute"]
     user_value = user_data.get(attr)
     expected_value = rule["value"]
@@ -61,4 +56,54 @@ def find_eligible_schemes(user_data, schemes):
             eligible.append({
                 "name": scheme.get("name")
             })
+    return eligible
+
+"""
+
+def evaluate_rule(user_data, rule):
+    attr = rule["attribute"]
+    user_value = user_data.get(attr)
+    
+    # Skip this rule if the attribute is missing from user data
+    if user_value is None:
+        print(f"Missing value for attribute: {attr}")
+        return None  # Return None instead of False for missing attributes
+    
+    expected_value = rule["value"]
+    operator_func = ops[rule["operator"]]
+    
+    try:
+        # Handle number comparison
+        if isinstance(expected_value, (int, float)):
+            user_value = float(user_value)
+        else:
+            user_value = str(user_value).strip().lower()
+            expected_value = str(expected_value).strip().lower()
+            
+        result = operator_func(user_value, expected_value)
+        print(f"Evaluating: {attr} -> {user_value} {rule['operator']} {expected_value} => {result}")
+        return result
+    except Exception as e:
+        print(f"Error evaluating rule {rule}: {e}")
+        return False
+
+# Main eligibility checker
+def find_eligible_schemes(user_data, schemes):
+    eligible = []
+    print(f"Received user data: {user_data}")
+    
+    for scheme in schemes:
+        rules = scheme.get("eligibility", [])
+        
+        # Filter out rules that evaluate to None (missing attributes)
+        evaluated_rules = [evaluate_rule(user_data, rule) for rule in rules]
+        valid_rules = [result for result in evaluated_rules if result is not None]
+        
+        # If all valid rules are True and there's at least one valid rule
+        if valid_rules and all(valid_rules):
+            eligible.append({
+                "name": scheme.get("name"),
+                "description": scheme.get("description", "")
+            })
+    
     return eligible

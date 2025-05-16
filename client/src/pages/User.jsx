@@ -1,6 +1,5 @@
 //User.jsx
 
-
 import React, { useState } from 'react';
 import {Link} from 'react-router-dom'
 import '../styles/user.css'
@@ -15,7 +14,6 @@ function User() {
   });
 
   const [eligibleSchemes, setEligibleSchemes] = useState([]);
-
   const handleChange = (e) => {
     setFormData(prev => ({
       ...prev,
@@ -79,107 +77,162 @@ function User() {
 
 export default User;
 
-
 /*
 import React, { useState } from 'react';
-import axios from 'axios';
+import Tesseract from 'tesseract.js';
+import * as pdfjsLib from 'pdfjs-dist';
 
-function User() {
-  const [file, setFile] = useState(null);
-  const [userFiles, setUserFiles] = useState([]);
-  const [message, setMessage] = useState('');
+const User = () => {
+  const [pdfFile, setPdfFile] = useState(null);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [submitStatus, setSubmitStatus] = useState('');
+  const [formValues, setFormValues] = useState({
+    name: '',
+    fatherName: '',
+    address: '',
+    income: '',
+    issueDate: '',
+    certificateNo: '',
+  });
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    setPdfFile(e.target.files[0]);
   };
 
-  const handleUpload = async () => {
-    if (!file) {
-      setMessage('Please select a file first');
-      return;
-    }
+  const handlePDF = async () => {
+    if (!pdfFile) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-
+    setLoadingMessage('Loading PDF...');
     try {
-      const response = await axios.post('/user/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        withCredentials: true
-      });
-      setMessage(response.data.message);
-      fetchUserFiles();
+      const pdf = await pdfjsLib.getDocument(URL.createObjectURL(pdfFile)).promise;
+      const page = await pdf.getPage(1);
+
+      const viewport = page.getViewport({ scale: 2 });
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+      setLoadingMessage('Running OCR...');
+      const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+      setLoadingMessage('Form filled! Please verify.');
+
+      const fields = extractFields(text);
+      setFormValues(fields);
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Error uploading file');
+      setLoadingMessage('Error processing the PDF.');
+      console.error(error);
     }
   };
 
-  const fetchUserFiles = async () => {
-    try {
-      const response = await axios.get('/user/files', {
-        withCredentials: true
-      });
-      setUserFiles(response.data.files);
-    } catch (error) {
-      console.error('Error fetching files:', error);
-    }
+  const extractFields = (text) => {
+    const nameMatch = text.match(/Thiru\s([A-Za-z\s]+)\sson/i);
+    const fatherMatch = text.match(/son\s+of\s+Thiru\s+([A-Za-z\s]+)\s+residing/i);
+    const addressMatch = extractAddress(text);
+    const incomeMatch = text.match(/income.*?is\s+(Rs\.?\s*[\d,]+)/i);
+    const certWithDateMatch = text.match(/(TN-\d{13}).*?Date[:\s]*(\d{2}-\d{2}-\d{4})/i);
+
+    return {
+      name: nameMatch ? nameMatch[1].trim() : "Not Found",
+      fatherName: fatherMatch ? fatherMatch[1].trim() : "Not Found",
+      address: addressMatch ? addressMatch : "Not Found",
+      income: incomeMatch ? incomeMatch[1].trim() : "Not Found",
+      issueDate: certWithDateMatch ? certWithDateMatch[2] : "Not Found",
+      certificateNo: certWithDateMatch ? certWithDateMatch[1] : "Not Found",
+    };
   };
 
-  // Call fetchUserFiles on component mount
-  React.useEffect(() => {
-    fetchUserFiles();
-  }, []);
+  const extractAddress = (text) => {
+    const addressPattern = /(?:Door No\.\s*\d+\/\d+\/\d+,?[\w\s,/-]+(?:Tamil Nadu))/;
+    const match = text.match(addressPattern);
+    return match ? match[0] : "";
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Add form submission logic here
+    console.log('Form Submitted:', formValues);
+  };
+
+  try {
+    // Call the /user endpoint with the form data
+    const response = await axios.post('/user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formValues),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Form submitted successfully:', data);
+    setSubmitStatus('Form submitted successfully!');
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    setSubmitStatus('Error submitting form. Please try again.');
+  }
+};
 
   return (
-    <div>
-      <h2>File Storage</h2>
-      
-      <div>
-        <h3>Upload File</h3>
-        <input type="file" onChange={handleFileChange} />
-        <button onClick={handleUpload}>Upload</button>
-        {message && <p>{message}</p>}
-      </div>
+    <div className="container">
+      <h2>Upload Income Certificate (PDF)</h2>
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={handleFileChange}
+      />
+      <button onClick={handlePDF}>Extract and Fill</button>
 
-      <div>
-        <h3>Your Files</h3>
-        {userFiles.length === 0 ? (
-          <p>No files found</p>
-        ) : (
-          <ul>
-            {userFiles.map((file, index) => (
-              <li key={index}>
-                {file.filename} - {Math.round(file.size / 1024)} KB
-                <button onClick={() => downloadFile(file.filename)}>Download</button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <p>{loadingMessage}</p>
+
+      <form id="registrationForm" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={formValues.name}
+          onChange={(e) => setFormValues({ ...formValues, name: e.target.value })}
+          placeholder="Name"
+        />
+        <input
+          type="text"
+          value={formValues.fatherName}
+          onChange={(e) => setFormValues({ ...formValues, fatherName: e.target.value })}
+          placeholder="Father's Name"
+        />
+        <textarea
+          value={formValues.address}
+          onChange={(e) => setFormValues({ ...formValues, address: e.target.value })}
+          placeholder="Address"
+        />
+        <input
+          type="text"
+          value={formValues.income}
+          onChange={(e) => setFormValues({ ...formValues, income: e.target.value })}
+          placeholder="Annual Income"
+        />
+        <input
+          type="text"
+          value={formValues.issueDate}
+          onChange={(e) => setFormValues({ ...formValues, issueDate: e.target.value })}
+          placeholder="Date of Issue"
+        />
+        <input
+          type="text"
+          value={formValues.certificateNo}
+          onChange={(e) => setFormValues({ ...formValues, certificateNo: e.target.value })}
+          placeholder="Certificate No"
+        />
+        <button type="submit">Submit</button>
+      </form>
+      {submitStatus && <p className="status-message">{submitStatus}</p>}
     </div>
   );
 
-  async function downloadFile(filename) {
-    try {
-      const response = await axios.get(`/user/download/${filename}`, {
-        responseType: 'blob',
-        withCredentials: true
-      });
-      
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error('Error downloading file:', error);
-    }
-  }
-}
-
 export default User;
+
 */

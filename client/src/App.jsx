@@ -9,6 +9,7 @@ import Signup from './pages/Signup'
 import Login from './pages/Login'
 import Chatbot from './pages/Chatbot'
 import ProtectedRoute from './ProtectedRoute'
+import AdminLogin from './pages/AdminLogin'
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<Signup />} />
+        <Route path='/admin-login' element={<AdminLogin />} />
         <Route path='/admin' element={<Admin />} />
         <Route path='/user' element={
           <ProtectedRoute>
