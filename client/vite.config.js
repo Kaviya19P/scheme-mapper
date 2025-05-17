@@ -16,5 +16,8 @@ export default defineConfig({
       '/chat': 'http://localhost:5000',
         
     }
+  },
+  optimizeDeps: {
+    include: ['pdfjs-dist/legacy/build/pdf.worker.mjs']
   }
 })

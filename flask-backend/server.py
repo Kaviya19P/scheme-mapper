@@ -9,14 +9,14 @@ from werkzeug.utils import secure_filename
 from scheme_map.mapper import load_schemes, find_eligible_schemes
 #from file_storage import app
 import os
-from chatbot.chatbot import chatbot_bp
+#from chatbot.chatbot import chatbot_bp
 
 app = Flask(__name__)
 app.secret_key = 'kaviya'
 CORS(app, supports_credentials=True)
 
 # Register the chatbot blueprint
-app.register_blueprint(chatbot_bp)
+#app.register_blueprint(chatbot_bp)
 
 client = MongoClient('mongodb://localhost:27017/')
 db = client['user_auth']
@@ -115,8 +115,9 @@ def check_eligibility():
         print("Loaded Schemes:", schemes)
         eligible = find_eligible_schemes(user_data, schemes)
         print("Received user data:", user_data)
-        print("Eligible schemes:", eligible)
+        print("Eligible schemes:", eligible) 
         return jsonify({"eligible_schemes": eligible})
+
 
 """# Add a simple endpoint to handle direct /chat requests and forward to the blueprint
 @app.route('/chat', methods=['GET', 'POST'])

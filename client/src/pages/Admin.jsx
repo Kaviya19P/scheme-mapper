@@ -7,7 +7,7 @@ import '../styles/admin.css';
 function Admin() {
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [eligibility, setEligibility] = useState([
-    { attribute: '', operator: '', value: '' }
+    { attribute: '', operator: '==', value: '' }
   ]);
 
   // Define attribute options
@@ -48,7 +48,9 @@ function Admin() {
         updated[index] = { 
           ...updated[index], 
           [field]: value, 
-          value: updated[index].attribute === 'category' ? [] : '' 
+          //value: updated[index].attribute === 'category' ? [] : '' 
+          operator: '==',
+          value: value === 'category' ? [] : '' 
         };
       } else {
         updated[index][field] = value;
@@ -74,7 +76,7 @@ function Admin() {
   };
 
   const addEligibility = () => {
-    setEligibility(prev => [...prev, { attribute: '', operator: '', value: '' }]);
+    setEligibility(prev => [...prev, { attribute: '', operator: '==', value: '' }]);
   };
 
   const removeEligibility = (index) => {
@@ -109,7 +111,7 @@ function Admin() {
       
       alert("Data saved to Firestore!");
       setFormData({ name: '', description: '' });
-      setEligibility([{ attribute: '', operator: '', value: '' }]);
+      setEligibility([{ attribute: '', operator: '==', value: '' }]);
     } catch (error) {
       console.error("Error saving to Firestore:", error);
     }
@@ -191,6 +193,28 @@ function Admin() {
     );
   };
 
+  // Only show operator selection for income attribute
+  const renderOperatorField = (rule, index) => {
+    if (rule.attribute === 'income' || rule.attribute === 'age') {
+      return (
+        <select
+          value={rule.operator}
+          onChange={(e) => handleEligibilityChange(index, 'operator', e.target.value)}
+          required
+        >
+          <option value="==">==</option>
+          <option value="!=">!=</option>
+          <option value=">">&gt;</option>
+          <option value="<">&lt;</option>
+          <option value=">=">&gt;=</option>
+          <option value="<=">&lt;=</option>
+        </select>
+      );
+    }
+    return null;
+  };
+
+
   return (
     <div className="admin-container">
       <h2>Add New Scheme</h2>
@@ -225,22 +249,7 @@ function Admin() {
                 <option key={option} value={option}>{option}</option>
               ))}
             </select>
-            
-            <select
-              value={rule.operator}
-              onChange={(e) => handleEligibilityChange(index, 'operator', e.target.value)}
-              required
-              disabled={rule.attribute === 'category'} // Disable operator for category as we're handling multi-select
-            >
-              <option value="">Select Operator</option>
-              <option value="==">==</option>
-              <option value="!=">!=</option>
-              <option value=">">&gt;</option>
-              <option value="<">&lt;</option>
-              <option value=">=">&gt;=</option>
-              <option value="<=">&lt;=</option>
-            </select>
-            
+            {renderOperatorField(rule, index)}
             {renderValueInput(rule, index)}
             
             <button type="button" onClick={() => removeEligibility(index)}>Remove</button>
