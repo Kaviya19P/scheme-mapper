@@ -1,32 +1,148 @@
-.home-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+/* Home.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body,
+html {
+    height: 100%;
+    font-family: 'Manrope', sans-serif;
+    background: linear-gradient(135deg, #e3f2fd, #ffffff);
+    background-attachment: fixed;
+    overflow: hidden;
+}
+
+.background-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: 100%;
+    height: auto;
+}
+
+
+.home-background {
     height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 100%;
+    background-image: radial-gradient(circle at 20% 40%, #dbeafe 0%, transparent 60%),
+        radial-gradient(circle at 80% 60%, #bae6fd 0%, transparent 60%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 }
 
-.home-container h1 {
-    font-size: 2rem;
+.home-glass-card {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(18px);
+    border-radius: 2rem;
+    padding: 3rem 4rem;
+    text-align: center;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    z-index: 10;
+    animation: fadeSlideUp 0.8s ease-out both;
+}
+
+.logo-animated {
+    width: 100px;
+    margin-bottom: 1.5rem;
+    animation: pulse 3s infinite ease-in-out;
+    filter: drop-shadow(0 0 10px #3b82f6);
+}
+
+.home-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.home-subtitle {
+    font-size: 1.1rem;
+    color: #475569;
     margin-bottom: 2rem;
-    color: #333;
 }
 
-.home-container button {
-    background-color: #2dac5e;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    margin: 10px;
+.button-wrapper {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.primary-btn {
+    padding: 0.9rem 2.2rem;
     font-size: 1rem;
-    border-radius: 8px;
+    border-radius: 9999px;
+    border: none;
+    font-weight: 600;
+    color: white;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.home-container button:hover {
-    background-color: #117c3a;
-    transform: scale(1.05);
+.primary-btn.user {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+}
+
+.primary-btn.admin {
+    background: linear-gradient(135deg, #10b981, #34d399);
+}
+
+.primary-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.06);
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .home-glass-card {
+        padding: 2rem;
+    }
+
+    .home-title {
+        font-size: 2rem;
+    }
+
+    .primary-btn {
+        width: 100%;
+        font-size: 1rem;
+    }
+
+    .button-wrapper {
+        flex-direction: column;
+        gap: 1rem;
+    }
 }

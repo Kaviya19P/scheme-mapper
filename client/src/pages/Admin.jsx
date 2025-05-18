@@ -10,26 +10,24 @@ function Admin() {
     { attribute: '', operator: '==', value: '' }
   ]);
 
-  // Define attribute options
   const attributeOptions = [
     'gender',
     'age',
     'state',
     'residence',
-    'category',
+    'community',
     'differently abled',
     'occupation',
     'income'
   ];
 
-  // Define value options based on attributes
   const valueOptions = {
     gender: ['male', 'female', 'other'],
     residence: ['rural', 'urban'],
     'differently abled': ['yes', 'no'],
     state: ['Tamil Nadu', 'Kerala', 'Andhra Pradesh', 'Karnataka', 'Maharashtra', 'Delhi', 'Gujarat'],
     occupation: ['student', 'farmer', 'police', 'engineer', 'doctor', 'teacher', 'business'],
-    category: ['OC', 'BC', 'BCM', 'MBC', 'SC', 'ST']
+    community: ['Open Category', 'Backward Class', "Denotified Community", 'Most Backward Class', 'Scheduled Caste', 'Scheduled Tribe']
   };
 
   const handleChange = (e) => {
@@ -43,32 +41,15 @@ function Admin() {
     setEligibility(prev => {
       const updated = [...prev];
       
-      // Reset value when attribute changes
       if (field === 'attribute') {
         updated[index] = { 
           ...updated[index], 
           [field]: value, 
-          //value: updated[index].attribute === 'category' ? [] : '' 
           operator: '==',
-          value: value === 'category' ? [] : '' 
+          value: '' 
         };
       } else {
         updated[index][field] = value;
-      }
-      
-      return updated;
-    });
-  };
-
-  const handleCategoryChange = (index, value) => {
-    setEligibility(prev => {
-      const updated = [...prev];
-      
-      // Toggle the category value in the array
-      if (updated[index].value.includes(value)) {
-        updated[index].value = updated[index].value.filter(item => item !== value);
-      } else {
-        updated[index].value = [...updated[index].value, value];
       }
       
       return updated;
@@ -89,12 +70,9 @@ function Admin() {
       const parsedEligibility = eligibility.map(rule => {
         let parsedValue = rule.value;
 
-        // Parse numeric values for age and income
         if (rule.attribute === 'age' || rule.attribute === 'income') {
           parsedValue = Number(rule.value);
         }
-        
-        // For category (which is an array), keep it as is
         
         return {
           attribute: rule.attribute,
@@ -109,22 +87,20 @@ function Admin() {
         eligibility: parsedEligibility
       });
       
-      alert("Data saved to Firestore!");
+      alert("Data saved!");
       setFormData({ name: '', description: '' });
       setEligibility([{ attribute: '', operator: '==', value: '' }]);
     } catch (error) {
-      console.error("Error saving to Firestore:", error);
+      console.error("Error saving data:", error);
     }
   };
 
-  // Render appropriate input based on selected attribute
   const renderValueInput = (rule, index) => {
     const attribute = rule.attribute;
     
     if (!attribute) return null;
     
     if (attribute === 'age') {
-      // Age dropdown from 0 to 110
       return (
         <select
           value={rule.value}
@@ -138,7 +114,6 @@ function Admin() {
         </select>
       );
     } else if (attribute === 'income') {
-      // Text input for income
       return (
         <input
           type="number"
@@ -148,25 +123,7 @@ function Admin() {
           required
         />
       );
-    } else if (attribute === 'category') {
-      // Multi-select checkboxes for category
-      return (
-        <div className="category-checkboxes">
-          {valueOptions.category.map((option) => (
-            <div key={option} className="checkbox-item">
-              <input
-                type="checkbox"
-                id={`category-${index}-${option}`}
-                checked={Array.isArray(rule.value) && rule.value.includes(option)}
-                onChange={() => handleCategoryChange(index, option)}
-              />
-              <label htmlFor={`category-${index}-${option}`}>{option}</label>
-            </div>
-          ))}
-        </div>
-      );
     } else if (valueOptions[attribute]) {
-      // Dropdown for other attributes with predefined options
       return (
         <select
           value={rule.value}
@@ -180,8 +137,6 @@ function Admin() {
         </select>
       );
     }
-    
-    // Default fallback to text input
     return (
       <input
         type="text"
@@ -193,7 +148,6 @@ function Admin() {
     );
   };
 
-  // Only show operator selection for income attribute
   const renderOperatorField = (rule, index) => {
     if (rule.attribute === 'income' || rule.attribute === 'age') {
       return (

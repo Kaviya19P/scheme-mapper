@@ -2,6 +2,8 @@ import React,{ useState } from "react";
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom'
 import axios from "axios";
+import { FaEnvelope, FaLock } from "react-icons/fa";
+import '../styles/login.css'
 
 function Login() {
     const navigate = useNavigate()
@@ -25,15 +27,20 @@ function Login() {
         console.error("Login error:", err);
         setError(err.response?.data?.message || "Login failed. Please try again.");
         alert(err.response.data.message);
-      }
-      
+      }      
     };
 
     return (
-      <div>
-      <form onSubmit={handleSubmit}>
+      <div className="login-background">
+      <form className="login-glass" onSubmit={handleSubmit}>
+      <div className="input-group">
+        <FaEnvelope className="icon" />
         <input name="email" placeholder="Email" onChange={handleChange}  required />
+      </div>
+      <div className="input-group">
+        <FaLock className="icon" />
         <input name="password" type="password" placeholder="Password" onChange={handleChange} />
+        </div>
         <button type="submit">Login</button>
         <p>Don't have an account: <Link to="/signup">Register</Link></p>
       </form>

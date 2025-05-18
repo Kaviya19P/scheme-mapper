@@ -1,6 +1,8 @@
 import React,{ useState } from "react";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import '../styles/signup.css'
 
 function Signup() {
     const navigate = useNavigate()
@@ -22,12 +24,11 @@ function Signup() {
         const result = await response.json();
 
         if (response.status === 201) {
-          // Signup successful
           sessionStorage.setItem('user', JSON.stringify(result.user));
           navigate('/user');
         } else {
           const data = await response.json();
-          alert(data.message); // Show backend error
+          alert(data.message);
         }
       } catch (err) {
         console.error('Signup failed:', err);
@@ -35,12 +36,26 @@ function Signup() {
     };
 
     return (
-      <div>
-      <form onSubmit={handleSubmit}>
+      <div  className="login-background">
+      <form className="login-glass" onSubmit={handleSubmit}>
+      <h2>Create Account</h2>
+      {error && <div style={{ color: "red", marginBottom: "1rem" }}>{error}</div>}
+        <div className="input-group">
+          <FaUser className="icon" />
         <input name="name" placeholder="User name" onChange={handleChange} required />
+        </div>
+        <div className="input-group">
+          <FaEnvelope className="icon" />
         <input name="email" placeholder="Email" onChange={handleChange} required />
+        </div>
+        <div className="input-group">
+          <FaLock className="icon" />
         <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+        </div>
         <button type="submit">Sign Up</button>
+        <div className="register-text">
+          Already have an account? <Link to="/login">Login</Link>
+        </div>
       </form>
       </div>
     );

@@ -80,8 +80,8 @@ export default User; */
 import React, { useState, useRef } from "react";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 import Tesseract from "tesseract.js";
+import '../styles/user.css'
 
-// Setup PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/legacy/build/pdf.worker.mjs",
   import.meta.url
@@ -111,7 +111,6 @@ const User = () => {
   };
   const [eligibleSchemes, setEligibleSchemes] = useState([]);
 
-  // Render first page of PDF to canvas
   const renderPDFPageToCanvas = async (file) => {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -127,7 +126,6 @@ const User = () => {
     return canvas;
   };
 
-  // OCR function
   const runOCR = async (image) => {
     setLoading(true);
     try {
@@ -145,7 +143,6 @@ const User = () => {
     }
   };
 
-  // Utility to extract value after keywords or patterns
   const extractAfter = (text, keywords) => {
     for (let keyword of keywords) {
       const regex = new RegExp(`${keyword}\\s*[:\\-]?\\s*(.+)`, "i");
@@ -165,7 +162,6 @@ const User = () => {
       .filter(Boolean);
 
     if (docType === "aadhar") {
-      // Robust Name Extraction
       let name = "";
       const namePrefixRegex =
         /\b(Mr|Mrs|Miss|Ms|Selvi|Shri|Smt|Dr|Sri|Md|Prof)\.?\s+([A-Za-z\s]+)/i;
@@ -187,7 +183,6 @@ const User = () => {
           "Applicant Name",
         ]);
       }
-      // Aadhaar fallback: find line above 'Year of Birth', 'DOB', or 'Gender'
       if (!name) {
         let idx = -1;
         for (let i = 0; i < lines.length; i++) {
@@ -199,7 +194,6 @@ const User = () => {
           }
         }
         if (idx > 0) {
-          // Search up to 2 lines above for a "name-like" line
           for (let j = idx - 1; j >= Math.max(0, idx - 2); j--) {
             if (
               /^[A-Za-z ]{3,}$/.test(lines[j]) &&
@@ -214,7 +208,7 @@ const User = () => {
           }
         }
       }
-      // Last fallback: first "name-like" line in the document
+
       if (!name) {
         for (let line of lines) {
           if (
@@ -230,7 +224,6 @@ const User = () => {
         }
       }
 
-      // Age extraction
       let age = "";
       const ageRegexes = [
         /age\s*[:\-]?\s*(\d{1,3})/i,
@@ -246,7 +239,7 @@ const User = () => {
         }
         if (age) break;
       }
-      // Try to calculate age from DOB
+
       if (!age) {
         const dobRegex = /(?:dob|date of birth)\s*[:\-]?\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i;
         for (let line of lines) {
@@ -273,7 +266,6 @@ const User = () => {
         }
       }
 
-      // Gender extraction
       let gender = "";
       const genderRegexes = [
         /gender\s*[:\-]?\s*(male|female|other)/i,
@@ -303,12 +295,10 @@ const User = () => {
     }
 
     if (docType === "community") {
-      // Caste and community extraction
       let caste = "";
       let community = "";
       let location = "";
 
-      // Caste extraction
       const belongsToCommunityRegex = /belongs\s+to\s+([a-zA-Z\s]+?)\s+Community/i;
       const belongsToRegex = /belongs\s+to\s+([a-zA-Z]+)/i;
       let match = text.match(belongsToCommunityRegex);
@@ -319,7 +309,6 @@ const User = () => {
         if (match) caste = match[1].trim();
       }
 
-      // Community extraction
       const recognizedAsRegex = /recogniz(?:ed|es|ing)\s+as\s+(an?|the)?\s*([a-zA-Z ]+?)(?:\s+as\s+per|\s+vide|\s+under|\s+by|\s+in|\s+order|,|\.)/i;
       match = text.match(recognizedAsRegex);
       if (match) {
@@ -354,7 +343,6 @@ const User = () => {
         }
       }
 
-      // Location extraction (village/town/ward/city)
       const locationKeywords = [
         "village",
         "town",
@@ -373,7 +361,7 @@ const User = () => {
           break;
         }
       }
-      // Fallback: look for any line with "village"/"town"/"ward"/"city"
+
       if (!location) {
         for (let line of lines) {
           for (let keyword of locationKeywords) {

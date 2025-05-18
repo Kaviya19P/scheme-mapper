@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body,
+html {
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+}
+
+.login-background {
+    height: 100vh;
+    background: linear-gradient(to right, #e3f2fd, #bbdefb);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-glass {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2.5rem 3rem;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.login-glass h2 {
+    font-size: 1.8rem;
+    color: #0d47a1;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.2rem;
+    border: 1px solid #ccc;
+}
+
+.input-group .icon {
+    font-size: 1rem;
+    color: #0d47a1;
+    margin-right: 0.8rem;
+}
+
+.input-group input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 1rem;
+    color: #333;
+}
+
+.input-group input::placeholder {
+    color: #666;
+}
+
+.login-glass button {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 50px;
+    background-image: linear-gradient(to right, #0d47a1, #42a5f5);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.login-glass button:hover {
+    transform: scale(1.03);
+    background-image: linear-gradient(to right, #1565c0, #64b5f6);
+}
+
+.register-text {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #0d47a1;
+}
+
+.register-text a {
+    color: #1565c0;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.register-text a:hover {
+    color: #42a5f5;
+    text-decoration: underline;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

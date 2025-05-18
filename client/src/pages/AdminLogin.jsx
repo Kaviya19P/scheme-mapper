@@ -1,6 +1,8 @@
 import React,{ useState } from "react";
 import { useNavigate } from 'react-router-dom'
 import axios from "axios";
+import { FaUserShield, FaLock } from "react-icons/fa";
+import '../styles/adminLogin.css'
 
 function AdminLogin() {
     const navigate = useNavigate()
@@ -29,11 +31,21 @@ function AdminLogin() {
     };
 
     return (
-      <div>
-      <form onSubmit={handleSubmit}>
+      <div className="admin-login-wrapper">
+      <form onSubmit={handleSubmit} className="admin-login-card">
+      <h2 className="admin-title"><FaUserShield /> Admin Login</h2>
+
+      {error && <div className="error-box">{error}</div>}
+
+      <div className="input-group">
+      <FaUserShield className="icon" />
         <input name="code" placeholder="Code" onChange={handleChange}  required />
+        </div>
+        <div className="input-group">
+          <FaLock className="icon" />
         <input name="password" type="password" placeholder="Password" onChange={handleChange} />
-        <button type="submit">Login</button>
+        </div>
+        <button type="submit" className="login-btn">Login</button>
       </form>
       </div>
     );

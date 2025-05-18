@@ -6,8 +6,9 @@ from pymongo import MongoClient
 import bcrypt
 import requests
 from werkzeug.utils import secure_filename
+from datetime import datetime
+from bson.objectid import ObjectId
 from scheme_map.mapper import load_schemes, find_eligible_schemes
-#from file_storage import app
 import os
 #from chatbot.chatbot import chatbot_bp
 
@@ -28,13 +29,11 @@ scheme_collection = db2['schemes']
 admin_code = "123"
 plain_password = "123"
 
-# Hash the password using bcrypt
 hashed_password = bcrypt.hashpw(plain_password.encode("utf-8"), bcrypt.gensalt())
 
-# Insert into MongoDB
 admin_collection.insert_one({
     "code": admin_code,
-    "password": hashed_password  # Note: this is stored as Binary (bytes)
+    "password": hashed_password
 })
 
 @app.route('/signup', methods=['POST'])
@@ -106,9 +105,18 @@ def logout():
 @app.route("/user", methods=["GET", "POST"])
 def check_eligibility():
     if request.method == "GET":
-        # Handle GET request - just return an empty response to render the frontend page
+        if 'user' not in session:
+            return jsonify({"message": "User not authenticated"}), 401
         return jsonify({"message": "User page loaded successfully"})
     else:
+        if 'user' not in session:
+            return jsonify({"message": "User not authenticated"}), 401
+        
+        user_email = session['user']['email']
+        user = users_collection.find_one({'email': user_email})
+        
+        if not user:
+            return jsonify({"message": "User not found"}), 404
         user_data = request.json
         print("Received:", user_data)
         schemes = load_schemes()
@@ -116,6 +124,19 @@ def check_eligibility():
         eligible = find_eligible_schemes(user_data, schemes)
         print("Received user data:", user_data)
         print("Eligible schemes:", eligible) 
+        update_data = {
+            "profile_data": user_data,
+            "eligible_schemes": eligible,
+            "last_updated": datetime.now()
+        }
+        result = users_collection.update_one(
+            {"_id": user['_id']},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            print("Warning: User data might not have been updated")
+        
         return jsonify({"eligible_schemes": eligible})
 
 
