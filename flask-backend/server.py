@@ -10,14 +10,15 @@ from datetime import datetime
 from bson.objectid import ObjectId
 from scheme_map.mapper import load_schemes, find_eligible_schemes
 import os
-#from chatbot.chatbot import chatbot_bp
+from chatbot.chatbot import chatbot_bp
+from email_sender.email_sening import SchemeNotifier
 
 app = Flask(__name__)
 app.secret_key = 'kaviya'
 CORS(app, supports_credentials=True)
 
-# Register the chatbot blueprint
-#app.register_blueprint(chatbot_bp)
+app.register_blueprint(chatbot_bp)
+notifier = SchemeNotifier()
 
 client = MongoClient('mongodb://localhost:27017/')
 db = client['user_auth']
@@ -89,6 +90,8 @@ def admin():
         scheme = {
             "name": data['name'],
             "description": data['description'],
+            "created_at": datetime.now(),
+            "last_modified": datetime.now(),
             "eligibility": data['eligibility']
         }
         result = scheme_collection.insert_one(scheme)
@@ -126,34 +129,81 @@ def check_eligibility():
         print("Eligible schemes:", eligible) 
         update_data = {
             "profile_data": user_data,
-            "eligible_schemes": eligible,
+            #"eligible_schemes": eligible,
             "last_updated": datetime.now()
         }
+        print("Update data:", update_data)
         result = users_collection.update_one(
             {"_id": user['_id']},
             {"$set": update_data}
         )
+        print("Update result:", result.raw_result) 
         
         if result.modified_count == 0:
             print("Warning: User data might not have been updated")
         
         return jsonify({"eligible_schemes": eligible})
+    
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+#from dotenv import load_dotenv
+import os
 
+#load_dotenv()  # Load .env
+MAILTRAP_HOST = "sandbox.smtp.mailtrap.io"
+MAILTRAP_PORT = 2525
+MAILTRAP_USERNAME = "21de3a9d92d551"  # Replace with your Mailtrap credentials
+MAILTRAP_PASSWORD = "dc531e5ac7d631"  # Replace with your Mailtrap credentials
+SENDER_EMAIL = "919kaviya@gmail.com"  # Can be any email address for Mailtrap
+POLL_INTERVAL = 30
 
-"""# Add a simple endpoint to handle direct /chat requests and forward to the blueprint
-@app.route('/chat', methods=['GET', 'POST'])
-def chat_endpoint():
-    if request.method == 'GET':
-        return jsonify({"message": "Chat endpoint ready"})
-    # This endpoint just forwards the request to the chatbot blueprint
-    from chatbot.chatbot import handle_chat
-    return handle_chat(request)
+def send_email(to_email, subject, body):
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = os.getenv('SENDER_EMAIL')
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'html'))
 
-@app.route('/chatbot', methods=['GET'])
-def chatbot_page():
-    # Handle GET request to render the chatbot page
-    return jsonify({"message": "Chatbot page loaded successfully"})
+        with smtplib.SMTP(os.getenv('MAILTRAP_HOST'), os.getenv('MAILTRAP_PORT')) as server:
+            server.login(os.getenv('MAILTRAP_USERNAME'), os.getenv('MAILTRAP_PASSWORD'))
+            server.send_message(msg)
+        return True
+    except Exception as e:
+        print(f"Email error: {e}")
+        return False
 
-    """
+@app.route('/send-notification', methods=['POST'])
+def send_notification():
+    """data = request.json
+    success = send_email(
+        data['recipient'],
+        data['subject'],
+        data['body']
+    )
+    return jsonify({"success": success})"""
+    try:
+        # Ensure request has JSON data
+        if not request.is_json:
+            return jsonify({"success": False, "error": "Request must be JSON"}), 400
+
+        data = request.get_json()
+        
+        # Validate required fields
+        if not all(key in data for key in ['recipient', 'subject', 'body']):
+            return jsonify({"success": False, "error": "Missing required fields"}), 400
+
+        success = send_email(
+            data['recipient'],
+            data['subject'],
+            data['body']
+        )
+        
+        return jsonify({"success": success})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    
 if __name__ == "__main__":
     app.run(debug=True)

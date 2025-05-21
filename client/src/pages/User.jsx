@@ -78,6 +78,7 @@ function User() {
 export default User; */
 
 import React, { useState, useRef } from "react";
+import {Link} from 'react-router-dom'
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 import Tesseract from "tesseract.js";
 import '../styles/user.css'
@@ -476,8 +477,17 @@ const User = () => {
   };
 
   return (
-    <div>
-      <h2>Scheme Eligibility Checker</h2>
+    <div className="user-background">
+      <div className="user-nav">
+        <nav className="navbar">
+          <Link to="/user" className='active'>User Dashboard</Link>
+          <Link to="/chat">Chat with Assistant</Link>
+        </nav>
+      </div>
+      <div className="user-glass-card">
+        <center><h2>User Documents</h2></center>
+      
+      <br />
       {error && <p style={{ color: "red" }}>⚠️ {error}</p>}
       {loading && <p>🔄 Processing document...</p>}
       <canvas ref={canvasRef} style={{ display: "none" }} />
@@ -490,9 +500,7 @@ const User = () => {
             accept="application/pdf,image/*"
             onChange={(e) => handleFileChange(e, "aadhar")}
           />
-          <p>
-            <strong>Name:</strong> {formData.name || "-"}
-          </p>
+          
           <p>
             <strong>Age:</strong> {formData.age || "-"}
           </p>
@@ -510,9 +518,7 @@ const User = () => {
             accept="application/pdf,image/*"
             onChange={(e) => handleFileChange(e, "community")}
           />
-          <p>
-            <strong>Caste:</strong> {formData.caste || "-"}
-          </p>
+          
           <p>
             <strong>Community:</strong> {formData.community || "-"}
           </p>
@@ -557,19 +563,20 @@ const User = () => {
         </>
       )}
 
-      <div>
-        {step > 1 && <button onClick={handlePrevious}>Previous</button>}
-        {step < 4 && <button onClick={handleNext}>Next</button>}
-        {step === 4 && <button onClick={handleSubmit}>Submit</button>}
+      <div className="flex justify-between mt-4">
+        {step > 1 && <button onClick={handlePrevious} className="px-4 py-2 bg-gray-300 rounded">Previous</button>}
+        {step < 4 && <button onClick={handleNext} className="px-4 py-2 bg-blue-500 text-white rounded">Next</button>}
+        {step === 4 && <button onClick={handleSubmit} className="px-4 py-2 bg-green-500 text-white rounded">Submit</button>}
+      </div>
       </div>
 
-      <div>
+      <div className="eligible-schemes">
         <h3>Eligible Schemes:</h3>
         {eligibleSchemes.length > 0 ? (
           <ul>
             {eligibleSchemes.map((scheme, i) => (
               <li key={i}>
-                <strong>{scheme.name}</strong>: {scheme.description}
+                <strong>{scheme.name}</strong>
               </li>
             ))}
           </ul>

@@ -7,6 +7,7 @@ import '../styles/signup.css'
 function Signup() {
     const navigate = useNavigate()
     const [form, setForm] = useState({ name: "", email: "", password: "" });
+    const [error, setError] = useState("");
 
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 

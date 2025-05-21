@@ -26,8 +26,8 @@ function Admin() {
     residence: ['rural', 'urban'],
     'differently abled': ['yes', 'no'],
     state: ['Tamil Nadu', 'Kerala', 'Andhra Pradesh', 'Karnataka', 'Maharashtra', 'Delhi', 'Gujarat'],
-    occupation: ['student', 'farmer', 'police', 'engineer', 'doctor', 'teacher', 'business'],
-    community: ['Open Category', 'Backward Class', "Denotified Community", 'Most Backward Class', 'Scheduled Caste', 'Scheduled Tribe']
+    occupation: ['student', 'farmer', 'police', 'engineer', 'doctor', 'teacher', 'business', 'unemployed'],
+    community: ['Open Category', 'Backward Class', "Denotified Community", 'Most Backward Class', 'Scheduled Caste', 'Scheduled Tribe', 'Minority']
   };
 
   const handleChange = (e) => {

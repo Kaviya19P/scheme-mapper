@@ -14,6 +14,7 @@ export default defineConfig({
       '/login': 'http://localhost:5000',
       '/admin-login': 'http://localhost:5000',
       '/chat': 'http://localhost:5000',
+      '/send-notification': 'http://localhost:5000',
         
     }
   },

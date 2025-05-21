@@ -4,3 +4,6 @@ scheme_map/__pycache__
 scheme_map/firebase_adminsdk.json
 
 chatbot/__pycache__
+
+.env
+email_sender/__pycache__

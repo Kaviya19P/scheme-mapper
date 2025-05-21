@@ -3,7 +3,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../styles/Home.css'
-import logo from '../assets/logo.jpeg'
+import logo from '../assets/logo.png'
 
 function Home() {
     const navigate = useNavigate()
