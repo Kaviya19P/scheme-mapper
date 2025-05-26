@@ -150,12 +150,12 @@ from email.mime.multipart import MIMEMultipart
 #from dotenv import load_dotenv
 import os
 
-#load_dotenv()  # Load .env
+#load_dotenv()
 MAILTRAP_HOST = "sandbox.smtp.mailtrap.io"
 MAILTRAP_PORT = 2525
-MAILTRAP_USERNAME = "21de3a9d92d551"  # Replace with your Mailtrap credentials
-MAILTRAP_PASSWORD = "dc531e5ac7d631"  # Replace with your Mailtrap credentials
-SENDER_EMAIL = "919kaviya@gmail.com"  # Can be any email address for Mailtrap
+MAILTRAP_USERNAME = "21de3a9d92d551"
+MAILTRAP_PASSWORD = "dc531e5ac7d631"
+SENDER_EMAIL = "919kaviya@gmail.com"
 POLL_INTERVAL = 30
 
 def send_email(to_email, subject, body):
@@ -176,21 +176,12 @@ def send_email(to_email, subject, body):
 
 @app.route('/send-notification', methods=['POST'])
 def send_notification():
-    """data = request.json
-    success = send_email(
-        data['recipient'],
-        data['subject'],
-        data['body']
-    )
-    return jsonify({"success": success})"""
     try:
-        # Ensure request has JSON data
         if not request.is_json:
             return jsonify({"success": False, "error": "Request must be JSON"}), 400
 
         data = request.get_json()
         
-        # Validate required fields
         if not all(key in data for key in ['recipient', 'subject', 'body']):
             return jsonify({"success": False, "error": "Missing required fields"}), 400
 
@@ -198,10 +189,8 @@ def send_notification():
             data['recipient'],
             data['subject'],
             data['body']
-        )
-        
-        return jsonify({"success": success})
-        
+        )        
+        return jsonify({"success": success})        
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
     

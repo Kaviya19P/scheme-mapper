@@ -73,7 +73,6 @@ class ChatbotEngine:
         }
     
     def preprocess_text(self, text):
-        # Clean and tokenize text for processing
         text = text.lower()
         tokens = word_tokenize(text)
         tokens = [word for word in tokens if word.isalnum()]
@@ -82,16 +81,13 @@ class ChatbotEngine:
         return tokens
     
     def detect_intent(self, query):
-        # Determine what the user is asking about
         tokens = self.preprocess_text(query)
         
-        # Check for basic interactions
         if any(word in tokens for word in ['hi', 'hello', 'hey']):
             return 'greeting', None
         if any(word in tokens for word in ['thank', 'thanks', 'appreciate']):
             return 'thanks', None
         
-        # Check for scheme-related intents
         intent_scores = Counter()
         for intent, keywords in self.scheme_keywords.items():
             for keyword in keywords:
@@ -101,7 +97,6 @@ class ChatbotEngine:
         if intent_scores:
             return 'scheme_info', intent_scores.most_common(1)[0][0]
         
-        # Check if user is describing their profile
         profile_attributes = ['age', 'gender', 'state', 'rural', 'urban', 'community', 
                             'disabled', 'differently abled', 'occupation', 'income']
         if any(stemmer.stem(attr) in tokens for attr in profile_attributes):
@@ -110,7 +105,6 @@ class ChatbotEngine:
         return 'fallback', None
     
     def get_schemes_by_criteria(self, criteria):
-        # Find schemes matching specific criteria
         try:
             schemes = list(self.db.schemes.find())
             if not schemes:
@@ -122,12 +116,10 @@ class ChatbotEngine:
                 matches = True
                 scheme_eligibility = scheme.get('eligibility', [])
                 
-                # Convert criteria to match scheme format
                 user_criteria = []
                 for attr, value in criteria.items():
                     if attr in self.attribute_mapping:
                         db_attr = self.attribute_mapping[attr]
-                        # For age, we need to check both >= and <= conditions
                         if db_attr == 'age':
                             user_criteria.extend([
                                 {'attribute': 'age', 'operator': '<=', 'value': value},
@@ -136,13 +128,11 @@ class ChatbotEngine:
                         else:
                             user_criteria.append({'attribute': db_attr, 'operator': '==', 'value': value})
                 
-                # Check each eligibility condition
                 for condition in scheme_eligibility:
                     attr = condition['attribute']
                     operator = condition['operator']
                     ref_value = condition['value']
                     
-                    # Find matching user criteria
                     user_value = None
                     for user_condition in user_criteria:
                         if user_condition['attribute'] == attr:
@@ -166,7 +156,6 @@ class ChatbotEngine:
             return []
 
     def _check_condition(self, operator, ref_value, user_value):
-        # Check if a condition is met
         try:
             if operator == '==':
                 return str(user_value).lower() == str(ref_value).lower()
@@ -186,22 +175,18 @@ class ChatbotEngine:
             return False
     
     def extract_profile_from_query(self, query):
-        # Extract profile information from natural language query
         tokens = word_tokenize(query.lower())
         profile = {}
         
-        # Age extraction
         age_match = re.search(r'(\d+)\s*years?', query)
         if age_match:
             profile['age'] = int(age_match.group(1))
         
-        # Residence extraction
         if 'rural' in tokens:
             profile['residence'] = 'rural'
         elif 'urban' in tokens:
             profile['residence'] = 'urban'
             
-        # Occupation extraction
         occupations = ['student', 'farmer', 'police', 'engineer', 'doctor', 
                       'teacher', 'business', 'unemployed']
         for occ in occupations:
@@ -209,7 +194,6 @@ class ChatbotEngine:
                 profile['occupation'] = occ
                 break
                 
-        # Gender extraction
         if 'male' in tokens:
             profile['gender'] = 'male'
         elif 'female' in tokens:
@@ -217,7 +201,6 @@ class ChatbotEngine:
         elif 'other' in tokens:
             profile['gender'] = 'other'
             
-        # Community extraction
         communities = ['open category', 'backward class', 'denotified community',
                       'most backward class', 'scheduled caste', 'scheduled tribe',
                       'minority']
@@ -226,21 +209,19 @@ class ChatbotEngine:
                 profile['community'] = comm.title()
                 break
                 
-        # Disability
         if 'disabled' in tokens or 'differently abled' in query.lower():
             profile['differently_abled'] = 'yes'
             
         return profile
     
     def generate_response(self, intent, sub_intent=None, user_data=None, user_query=None):
-        # Create an appropriate response based on intent
         if intent in ['greeting', 'thanks', 'fallback']:
             return random.choice(self.general_responses[intent])
         
         if intent == 'scheme_info':
             try:
                 if sub_intent == 'eligibility':
-                    # Extract profile from query if not provided in user_data
+                    
                     profile = user_data if user_data else {}
                     if user_query and not profile:
                         profile = self.extract_profile_from_query(user_query)
@@ -314,7 +295,6 @@ def handle_chat():
         intent, sub_intent = chatbot.detect_intent(user_message)
         response = chatbot.generate_response(intent, sub_intent, user_profile, user_message)
         
-        # Log the interaction
         try:
             chatbot.db.chat_logs.insert_one({
                 'message': user_message,
@@ -341,7 +321,6 @@ def handle_chat():
 
 @chatbot_bp.route('/schemes', methods=['GET'])
 def list_schemes():
-    # Endpoint to list all available schemes
     try:
         db = get_db_connection()
         schemes = list(db.schemes.find({}, {'_id': 0, 'name': 1, 'description': 1, 'amount': 1, 'benefit': 1}))

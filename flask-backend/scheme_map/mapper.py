@@ -54,7 +54,6 @@ def find_eligible_schemes(user_data, schemes):
         if valid_rules and all(valid_rules):
             eligible.append({
                 "name": scheme.get("name"),
-                #"description": scheme.get("description", "")
             })
     
     return eligible
